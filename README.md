@@ -1,5 +1,5 @@
 # elm-animation-examples
-This repo contains examples of HTML animations using [Elm 0.18](http://elm-lang.org/) and the [`mdgriffith/elm-style-animation`](http://package.elm-lang.org/packages/mdgriffith/elm-style-animation) package.
+This repo contains examples of HTML animations using [Elm 0.18](http://elm-lang.org/) and the [`mdgriffith/elm-style-animation`](http://package.elm-lang.org/packages/mdgriffith/elm-style-animation/3.5.1) package.
 
 ## Basic Animation Framework
 
