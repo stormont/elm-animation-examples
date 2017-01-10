@@ -61,10 +61,6 @@ animationOrDefault manim def =
 -- UPDATE
 
 
-type alias Update =
-  (Msg -> Model -> (Model, Cmd Msg))
-
-
 type Msg
   = Initialize
   -- Start a new animation
@@ -119,6 +115,10 @@ update msg model =
       in
         ( m2, Cmd.batch [ c1, c2 ] )
       -}
+
+
+type alias Update =
+  (Msg -> Model -> (Model, Cmd Msg))
 
 
 chainUpdate : Update -> Msg -> (Model, Cmd Msg) -> (Model, Cmd Msg)
