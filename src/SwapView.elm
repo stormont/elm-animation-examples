@@ -71,6 +71,7 @@ type Msg
   | ExecuteAnimation ElementId AnimationId
   -- Update an "in progress" animation
   | UpdateAnimation Animation.Msg
+  -- Swap visibility of two elements
   | SwapElements ElementId ElementId
 
 
@@ -120,7 +121,7 @@ update msg model =
       -}
 
 
-chainUpdate : Update -> Msg -> ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
+chainUpdate : Update -> Msg -> (Model, Cmd Msg) -> (Model, Cmd Msg)
 chainUpdate updateFunc msg (model, cmds) =
   let
     (model_, cmds_) = updateFunc msg model
@@ -128,7 +129,7 @@ chainUpdate updateFunc msg (model, cmds) =
     model_ ! [ cmds, cmds_ ]
 
 
-performChainedUpdates : Update -> Model -> List Msg -> ( Model, Cmd Msg )
+performChainedUpdates : Update -> Model -> List Msg -> (Model, Cmd Msg)
 performChainedUpdates updateFunc model cmds =
   List.foldl (chainUpdate updateFunc) (model ! []) cmds
 
