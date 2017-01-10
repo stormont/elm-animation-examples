@@ -219,7 +219,7 @@ initializeApp =
       ( List.map
           (Task.perform (\(elementId, animationId) -> ExecuteAnimation elementId animationId))
           [ Task.succeed ("Element01", "fade_in")
-          , Task.succeed ("Element02", "fade_out")
+          , Task.succeed ("Element02", "opac_0")
           ]
       )
   )
