@@ -40,7 +40,7 @@ type alias AnimationMappings =
 
 
 type alias Model =
-  { animations        : Dict AnimationId (Animation.Messenger.State Msg)
+  { animations        : Dict ElementId (Animation.Messenger.State Msg)
   , animationMappings : AnimationMappings
   }
 
@@ -71,7 +71,7 @@ type Msg
   | ExecuteAnimation ElementId AnimationId
   -- Update an "in progress" animation
   | UpdateAnimation Animation.Msg
-  | SwapView ElementId ElementId
+  | SwapElements ElementId ElementId
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -83,16 +83,15 @@ update msg model =
     ExecuteAnimation elementId animationId ->
       let
         _ = Debug.log ("ExecuteAnimation " ++ elementId ++ " " ++ animationId) ()
-        animationKey = elementId ++ "_" ++ animationId
         executeAnimation dict =
           case get animationId model.animationMappings of
-            Just f  -> insert animationKey (f <| get animationKey dict) dict
+            Just f  -> insert elementId (f <| get elementId dict) dict
             Nothing -> dict
       in
         ( { model | animations = executeAnimation model.animations }
         , Cmd.none
         )
-
+    
     UpdateAnimation animMsg ->
       let
         f k v         =  Animation.Messenger.update animMsg v
@@ -105,7 +104,7 @@ update msg model =
         , Cmd.batch cmds
         )
 
-    SwapView srcView destView ->
+    SwapElements srcView destView ->
       performChainedUpdates
         update
         model
@@ -153,7 +152,7 @@ view =
 renderAnimationsByElementId : ElementId -> Model -> List (Attribute Msg)
 renderAnimationsByElementId elementId model =
   toList model.animations
-    |> List.filter (\(k, _) -> String.startsWith (elementId ++ "_") k)
+    |> List.filter (\(k, _) -> k == elementId)
     |> List.map (\(_, v) -> Animation.render v)
     |> List.concat
 
@@ -178,7 +177,7 @@ element01View : Model -> Html Msg
 element01View model =
   div
     (  (renderAnimationsByElementId "Element01" model)
-    ++ [ onClick (SwapView "Element01" "Element02")
+    ++ [ onClick (SwapElements "Element01" "Element02")
        , style
           [ ( "position", "relative" )
           , ( "margin", "100px auto" )
@@ -197,7 +196,7 @@ element02View : Model -> Html Msg
 element02View model =
   div
     (  (renderAnimationsByElementId "Element02" model)
-    ++ [ onClick (SwapView "Element02" "Element01")
+    ++ [ onClick (SwapElements "Element02" "Element01")
        , style
           [ ( "position", "relative" )
           , ( "margin", "100px auto" )
@@ -220,7 +219,7 @@ initializeApp =
       ( List.map
           (Task.perform (\(elementId, animationId) -> ExecuteAnimation elementId animationId))
           [ Task.succeed ("Element01", "fade_in")
-          , Task.succeed ("Element02", "fade_in")
+          , Task.succeed ("Element02", "fade_out")
           ]
       )
   )
