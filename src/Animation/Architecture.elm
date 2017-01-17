@@ -6,6 +6,8 @@ module Animation.Architecture exposing
   , concat
   , concat_
   , executeAnimation
+  , extend
+  , mapToWithEach
   , renderAnimationsByKey
   , setAnimations
   , updateAnimations
@@ -84,6 +86,15 @@ extend
     -> AnimationTuple msg
 extend steps =
   (\(f, xs, def) -> (f, xs ++ steps, def))
+
+
+mapToWithEach
+    : Animation.Interpolation
+    -> List Animation.Property
+    -> Animation.Messenger.Step msg
+mapToWithEach func xs =
+  List.map (\x -> (func, x)) xs
+    |> Animation.toWithEach
 
 
 executeAnimation
