@@ -4,6 +4,7 @@ module Animation.Architecture exposing
   , AnimationModel
   , AnimationTuple
   , concat
+  , concat_
   , executeAnimation
   , renderAnimationsByKey
   , setAnimations
@@ -66,6 +67,15 @@ concat
     -> Maybe (AnimationTuple msg)
 concat =
   foldl1 (\(f, xs, d) (_, ys ,_) -> (f, xs ++ ys, d))
+
+
+concat_
+    :  List (AnimationTuple msg)
+    -> AnimationTuple msg
+concat_ anims =
+  case foldl1 (\(f, xs, d) (_, ys ,_) -> (f, xs ++ ys, d)) anims of
+    Nothing -> (Animation.interrupt, [], Animation.style [])  -- Just an empty/no-op animation
+    Just anim -> anim
 
 
 extend
