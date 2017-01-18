@@ -51,7 +51,7 @@ fadeIn : AnimationTuple msg
 fadeIn =
   ( interrupt
   , [ toWithEach [ (easeWith inExpo 500, opacity 1) ] ]
-  , style [ opacity 0 ]
+  , defaultAnimation
   )
 
 
@@ -59,7 +59,7 @@ slideUp : AnimationTuple msg
 slideUp =
   ( interrupt
   , [ toWithEach [ (easeWith outSine 500, top (percent 10)) ] ]
-  , style [ top (percent 75) ]
+  , defaultAnimation
   )
 
 
@@ -71,11 +71,7 @@ fadeInAndSlideUp =
       , (easeWith outSine 500, top (percent 10))
       ]
     ]
-  , style
-    [ opacity 0
-    , top (percent 75)
-    , right (percent 0)
-    ]
+  , defaultAnimation
   )
 
 
@@ -87,26 +83,32 @@ fadeOutAndSlideLeft =
       , (easeWith inSine 500, right (percent 50))
       ]
     ]
-  , style
-    [ opacity 1
-    , right (percent 0)
-    ]
+  , defaultAnimation
   )
 
 
 -- Example of basic animation usage
 opacity_0 : AnimationTuple msg
 opacity_0 =
-  ( Animation.interrupt
-  , [ Animation.to [ Animation.opacity 0 ] ]
-  , Animation.style [ Animation.opacity 0 ]
+  ( interrupt
+  , [ to [ opacity 0 ] ]
+  , defaultAnimation
   )
 
 
 -- Example of basic animation usage
 opacity_1 : AnimationTuple msg
 opacity_1 =
-  ( Animation.interrupt
-  , [ Animation.to [ Animation.opacity 1 ] ]
-  , Animation.style [ Animation.opacity 1 ]
+  ( interrupt
+  , [ to [ opacity 1 ] ]
+  , defaultAnimation
   )
+
+
+defaultAnimation : Animation.Messenger.State msg
+defaultAnimation =
+  style
+    [ opacity 0
+    , right (percent 0)
+    , top (percent 75)
+    ]
