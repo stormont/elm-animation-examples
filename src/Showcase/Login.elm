@@ -2,6 +2,7 @@
 module Showcase.Login exposing (..)
 
 import Animation
+import Animation.Messenger
 import Animation.Architecture exposing (..)
 import Dom exposing (..)
 import EveryDict exposing (..)
@@ -32,11 +33,6 @@ type alias Model =
   , usernameText   : String
   , passwordText   : String
   }
-
-
-initializeModel : Model
-initializeModel =
-  Model (AnimationModel empty animationDictMap) True "" ""
 
 
 setAnimationModel : AnimationModel ElementId AnimationId Msg -> Model -> Model
@@ -247,15 +243,48 @@ renderViewInputs model =
     ]
 
 
+initializeModel : Model
+initializeModel =
+  let
+    dict =
+      animationDictMap
+        |> addCustomAnimation "Default" (setToDefault defaultAnimation)
+        |> addCustomAnimation "DefaultForm" (setToDefault defaultFormAnimation)
+  in
+    Model (AnimationModel empty dict) True "" ""
+
+
+initializeCmdMsg : Cmd Msg
+initializeCmdMsg =
+  Cmd.batch
+    ( List.map
+        (Task.perform (\(elementId, animationId) -> ExecuteAnimation elementId animationId))
+        [ Task.succeed (Form, FadeInAndSlideUp)
+        , Task.succeed (Form, Custom "DefaultForm")
+        , Task.succeed (Inputs, Custom "Default")
+        , Task.succeed (SubmitButton, Custom "Default")
+        ]
+    )
+
+
 init : (Model, Cmd Msg)
 init =
-  ( initializeModel
-  , Cmd.batch
-      ( List.map
-          (Task.perform (\(elementId, animationId) -> ExecuteAnimation elementId animationId))
-          [ Task.succeed (Inputs, Transparent)
-          , Task.succeed (SubmitButton, Transparent)
-          , Task.succeed (Form, FadeInAndSlideUp)
-          ]
-      )
-  )
+  ( initializeModel, initializeCmdMsg )
+
+
+defaultAnimation : Animation.Messenger.State msg
+defaultAnimation =
+  Animation.style
+    [ Animation.opacity 0
+    , Animation.right (Animation.percent 0)
+    , Animation.top (Animation.percent 75)
+    ]
+
+
+defaultFormAnimation : Animation.Messenger.State msg
+defaultFormAnimation =
+  Animation.style
+    [ Animation.opacity 0
+    , Animation.right (Animation.percent 0)
+    , Animation.top (Animation.percent 75)
+    ]

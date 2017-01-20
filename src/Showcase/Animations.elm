@@ -1,7 +1,9 @@
 
 module Showcase.Animations exposing
   ( AnimationId(..)
+  , addCustomAnimation
   , animationDictMap
+  , setToDefault
   )
 
 import Animation exposing (..)
@@ -33,6 +35,9 @@ type AnimationId
   | FadeOutAndSlideLeft
   | Transparent
   | FullyOpaque
+  | ZeroWidth
+  | FullWidth
+  | Custom String   -- For those cases where you want to define your own custom animations as extensions
 
 
 animationDictMap : AnimationDictMap AnimationId msg
@@ -44,14 +49,35 @@ animationDictMap =
     , ( FadeOutAndSlideLeft, fadeOutAndSlideLeft )
     , ( Transparent, opacity_0 )
     , ( FullyOpaque, opacity_1 )
+    , ( ZeroWidth, width_0 )
+    , ( FullWidth, width_1 )
     ]
+
+
+addCustomAnimation
+    : String
+    -> AnimationTuple msg
+    -> AnimationDictMap AnimationId msg
+    -> AnimationDictMap AnimationId msg
+addCustomAnimation customId animation dict =
+  toList dict
+    |> (++) [ (Custom customId, animation) ]
+    |> fromList
+
+
+setToDefault : Animation.Messenger.State msg -> AnimationTuple msg
+setToDefault def =
+  ( Animation.interrupt
+  , []
+  , def
+  )
 
 
 fadeIn : AnimationTuple msg
 fadeIn =
   ( interrupt
   , [ toWithEach [ (easeWith inExpo 500, opacity 1) ] ]
-  , defaultAnimation
+  , style [ opacity 0 ]
   )
 
 
@@ -59,7 +85,7 @@ slideUp : AnimationTuple msg
 slideUp =
   ( interrupt
   , [ toWithEach [ (easeWith outSine 500, top (percent 10)) ] ]
-  , defaultAnimation
+  , style [ top (percent 75) ]
   )
 
 
@@ -71,7 +97,10 @@ fadeInAndSlideUp =
       , (easeWith outSine 500, top (percent 10))
       ]
     ]
-  , defaultAnimation
+  , style
+    [ opacity 0
+    , top (percent 75)
+    ]
   )
 
 
@@ -83,32 +112,40 @@ fadeOutAndSlideLeft =
       , (easeWith inSine 500, right (percent 50))
       ]
     ]
-  , defaultAnimation
+  , style
+    [ opacity 1
+    , right (percent 0)
+    ]
   )
 
 
--- Example of basic animation usage
 opacity_0 : AnimationTuple msg
 opacity_0 =
   ( interrupt
   , [ to [ opacity 0 ] ]
-  , defaultAnimation
+  , style [ opacity 1 ]
   )
 
 
--- Example of basic animation usage
 opacity_1 : AnimationTuple msg
 opacity_1 =
   ( interrupt
   , [ to [ opacity 1 ] ]
-  , defaultAnimation
+  , style [ opacity 0 ]
   )
 
 
-defaultAnimation : Animation.Messenger.State msg
-defaultAnimation =
-  style
-    [ opacity 0
-    , right (percent 0)
-    , top (percent 75)
-    ]
+width_0 : AnimationTuple msg
+width_0 =
+  ( interrupt
+  , [ toWithEach [ (easeWith outExpo 500, width (percent 0)) ] ]
+  , style [ width (percent 100) ]
+  )
+
+
+width_1 : AnimationTuple msg
+width_1 =
+  ( interrupt
+  , [ toWithEach [ (easeWith outExpo 500, width (percent 100)) ] ]
+  , style [ width (percent 0) ]
+  )
