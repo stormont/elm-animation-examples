@@ -7,7 +7,6 @@ import Animation.Architecture exposing (..)
 import EveryDict exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 import Task exposing (..)
 import Update.Extra exposing (..)
 
@@ -24,7 +23,7 @@ type ElementId
 
 type alias Model =
   { animationModel : AnimationModel ElementId AnimationId Msg
-  -- TODO: Extend this definition
+  -- Extended this definition beyond the template from here
   , containerHasAppeared : Bool
   }
 
@@ -54,6 +53,7 @@ update msg model =
   case msg of
     
     AnimationCompleted elementId animationId ->
+      -- Extended this definition beyond the template in a separate function call
       performNextCommand model elementId animationId
 
     ExecuteAnimation elementId animationId ->
@@ -75,19 +75,25 @@ update msg model =
         , Cmd.batch cmds
         )
 
+    -- TODO: Extend this definition
+
 
 performNextCommand : Model -> ElementId -> AnimationId -> ( Model, Cmd Msg )
 performNextCommand model elementId animationId =
   case elementId of
+    
     Container ->
       case animationId of
+        
         FadeInAndSlideUp ->
           ( model
               |> setContainerHasAppeared True
           , performUpdates [ (ExecuteAnimation (RowElement 1) FullWidth) ]
           )
+        
         _ ->
           ( model, Cmd.none )
+    
     RowElement n ->
       if not model.containerHasAppeared
         then ( model, Cmd.none )
@@ -177,6 +183,7 @@ initializeCmdMsg =
   Cmd.batch
     ( List.map
         (Task.perform (\(elementId, animationId) -> ExecuteAnimation elementId animationId))
+        -- Elm processes batched commands starting from the tail of the list!
         [ Task.succeed (Container, FadeInAndSlideUp)
         , Task.succeed (RowElement 1, Custom "RowElementDefault")
         , Task.succeed (RowElement 2, Custom "RowElementDefault")

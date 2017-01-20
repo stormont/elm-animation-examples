@@ -131,18 +131,25 @@ update msg model =
 performNextCommand : Model -> ElementId -> AnimationId -> ( Model, Cmd Msg )
 performNextCommand model elementId animationId =
   case elementId of
+    
     Form ->
       case animationId of
+        
         FadeInAndSlideUp ->
           ( model, performUpdates [ (ExecuteAnimation Inputs FullyOpaque) ] )
+        
         _ ->
           ( model, Cmd.none )
+    
     Inputs ->
       case animationId of
+        
         FullyOpaque ->
           ( model, performUpdates [ FormReady ] )
+        
         _ ->
           ( model, Cmd.none )
+    
     _ ->
       ( model, Cmd.none )
 
@@ -259,6 +266,7 @@ initializeCmdMsg =
   Cmd.batch
     ( List.map
         (Task.perform (\(elementId, animationId) -> ExecuteAnimation elementId animationId))
+        -- Elm processes batched commands starting from the tail of the list!
         [ Task.succeed (Form, FadeInAndSlideUp)
         , Task.succeed (Form, Custom "DefaultForm")
         , Task.succeed (Inputs, Custom "Default")
